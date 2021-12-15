@@ -5,6 +5,7 @@ import utils.Context;
 
 import java.util.List;
 
+import static command.MkdirCommand.resolvePath;
 import static command.WriteCommand.readBlocksIds;
 import static utils.Constants.BLOCKS_SIZE;
 import static utils.DescriptorService.*;
@@ -20,7 +21,7 @@ public class TruncateCommand implements Command {
             return;
         }
 
-        Descriptor descriptor = Context.descriptors.get(getDescriptorId(args.get(0)));
+        Descriptor descriptor = resolvePath(args.get(0), true).getDescriptor();
 
         if (size > descriptor.getSize()) {
             int blockToAdd = ((size - descriptor.getSize()) / BLOCKS_SIZE) + 1;

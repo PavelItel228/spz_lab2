@@ -29,27 +29,30 @@ public class ReadCommand implements Command{
             return;
         }
 
+        System.out.println(readData(fg, offset, size));
+    }
+
+    public static String readData(int fg, int offset, int size) {
         if (!Context.openedFiles.containsKey(fg)) {
             System.out.println("File is not opened");
-            return;
+            return "";
         }
         Descriptor fileDescriptor = Context.descriptors.get(Context.openedFiles.get(fg));
 
         if(offset + size > fileDescriptor.getSize()){
             System.out.println("size and offset is bigger than descriptor size");
-            return;
+            return "";
         }
 
         int startFromBlock = offset / BLOCKS_SIZE;
         int blockOffset = offset % BLOCKS_SIZE;
-        int endBlock = startFromBlock + size / BLOCKS_SIZE + 1;
+        int endBlock = startFromBlock + (int) Math.ceil((double)size / (double) BLOCKS_SIZE);
         int lastBlockOffset = BLOCKS_SIZE - ((endBlock - startFromBlock)* BLOCKS_SIZE - size - blockOffset);
 
         List<Block> blocksToRead = readBlocksIds(fileDescriptor).subList(startFromBlock, endBlock).stream()
                 .map((fileBlockId) -> new Block((int) fileBlockId, false, false))
                 .collect(Collectors.toList());
 
-        ArrayList<Byte> data = new ArrayList<>();
         int start = blockOffset;
         int end;
         if (offset + size < BLOCKS_SIZE){
@@ -57,17 +60,17 @@ public class ReadCommand implements Command{
         } else {
             end = BLOCKS_SIZE;
         }
-        data.addAll(blocksToRead.get(0).getMemory().subList(start, end));
+        ArrayList<Byte> data = new ArrayList<>(blocksToRead.get(0).getMemory().subList(start, end));
         if (blocksToRead.size() > 2){
             blocksToRead.subList(1, blocksToRead.size() -1).forEach(block -> data.addAll(block.getMemory()));
             start = 0;
             end = lastBlockOffset;
             data.addAll(blocksToRead.get(blocksToRead.size() - 1).getMemory().subList(start, end));
         }
-        System.out.println(byteListToString(data, Charset.defaultCharset()));
+        return byteListToString(data, Charset.defaultCharset());
     }
 
-    private List<Short> readBlocksIds(Descriptor descriptor) {
+    private static List<Short> readBlocksIds(Descriptor descriptor) {
         List<Short> result = new ArrayList<>();
         Integer fileBlockId = descriptor.getLinkedBlocks().get(descriptor.getLinkedBlocks().size() - 1);
         Block block = new Block(fileBlockId, Boolean.FALSE, Boolean.FALSE);

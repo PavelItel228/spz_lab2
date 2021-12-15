@@ -62,7 +62,7 @@ public class UnlinkCommand implements Command {
         }
     }
 
-    private void freeDescriptor(Descriptor descriptor) {
+    public static void freeDescriptor(Descriptor descriptor) {
         descriptor.setUsed(false);
         descriptor.setFileType(FileType.FILE);
         descriptor.setReferenceNumber(0);

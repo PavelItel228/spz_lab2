@@ -5,6 +5,7 @@
     import filesystem.Descriptor;
     import filesystem.FileType;
     import utils.Context;
+    import utils.PathData;
 
     import java.nio.ByteBuffer;
     import java.nio.charset.StandardCharsets;
@@ -15,6 +16,7 @@
     import java.util.stream.IntStream;
     import java.util.stream.Stream;
 
+    import static command.MkdirCommand.resolvePath;
     import static utils.Constants.*;
 
     public class CreateCommand implements Command {
@@ -23,12 +25,12 @@
             Descriptor unusedDescriptor = Context.descriptors.stream()
                     .filter(descriptor -> !descriptor.getUsed()).findFirst().orElseThrow(NoFreeDescriptorsException::new);
             initializeFile(unusedDescriptor);
-            Block block = new Block(Context.rootDirectory.getLinkedBlocks().get(0), true, true);
-            createFileMapping(block, unusedDescriptor, args.get(0));
+            PathData pathData = resolvePath(args.get(0), true);
+            pathData.getDescriptor().getDirectoryMappings().put(pathData.getFilename(), unusedDescriptor);
             System.out.printf("file %s created%n", args.get(0));
         }
 
-        private void initializeFile(Descriptor descriptor) {
+        public static void initializeFile(Descriptor descriptor) {
             descriptor.setUsed(true);
             descriptor.setFileType(FileType.FILE);
             descriptor.setReferenceNumber(1);

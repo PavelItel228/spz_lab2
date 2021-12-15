@@ -8,6 +8,7 @@ import utils.Context;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -27,21 +28,30 @@ public class MkfsCommand implements Command {
         Context.descriptors = IntStream.range(0, descriptorsNumber)
                 .mapToObj((i) -> new Descriptor((short) i, false, FileType.FILE, 0, 0, new ArrayList<>()))
                 .collect(Collectors.toList());
-        createRootDirectory();
+        Context.rootDirectory = createDirectory(null);
+        Context.currentDirectory = Context.rootDirectory;
         System.out.printf("file system created with %d descriptors%n", descriptorsNumber);
     }
 
-    private void createRootDirectory() {
-        Context.rootDirectory = Context.descriptors.stream()
+    public static Descriptor createDirectory(Descriptor parentDirectory) {
+        Descriptor desc = Context.descriptors.stream()
                 .filter(descriptor -> !descriptor.getUsed()).findFirst().orElseThrow(NoFreeDescriptorsException::new);
-        Context.rootDirectory.setUsed(true);
-        Context.rootDirectory.setFileType(FileType.DIRECTORY);
-        Context.rootDirectory.setReferenceNumber(1);
-        Context.rootDirectory.setSize(0);
+        desc.setUsed(true);
+        desc.setFileType(FileType.DIRECTORY);
+        desc.setReferenceNumber(1);
+        desc.setSize(0);
         Integer emptyBlock = IntStream.range(0, BLOCKS_NUMBER)
                 .filter((i) -> !Context.bitMap.test(i)).findFirst().orElseThrow(OutOfMemoryError::new);
-        Context.rootDirectory.getLinkedBlocks().add(emptyBlock);
+        desc.getLinkedBlocks().add(emptyBlock);
         Context.bitMap.set(emptyBlock);
+        createBasicLinks(desc, Optional.ofNullable(parentDirectory));
+        return desc;
+    }
+
+    private static void createBasicLinks(Descriptor currentDir, Optional<Descriptor> parentDir){
+        currentDir.getDirectoryMappings().put(".", currentDir);
+        parentDir.ifPresentOrElse((parentDirectory) -> currentDir.getDirectoryMappings().put("..", parentDirectory),
+                () -> currentDir.getDirectoryMappings().put("..", currentDir));
     }
 
 }

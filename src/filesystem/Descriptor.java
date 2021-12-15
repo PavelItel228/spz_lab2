@@ -1,6 +1,7 @@
 package filesystem;
 
 
+import java.util.HashMap;
 import java.util.List;
 
 public class Descriptor {
@@ -10,6 +11,7 @@ public class Descriptor {
     private Integer referenceNumber;
     private Integer size;
     private List<Integer> linkedBlocks;
+    private HashMap<String, Descriptor> directoryMappings = new HashMap<>();
 
     public Descriptor(Short id, Boolean isUsed, FileType fileType, Integer referenceNumber, Integer size, List<Integer> linkedBlocks) {
         this.id = id;
@@ -66,5 +68,13 @@ public class Descriptor {
 
     public void setId(Short id) {
         this.id = id;
+    }
+
+    public HashMap<String, Descriptor> getDirectoryMappings() {
+        return directoryMappings;
+    }
+
+    public void setDirectoryMappings(HashMap<String, Descriptor> directoryMappings) {
+        this.directoryMappings = directoryMappings;
     }
 }

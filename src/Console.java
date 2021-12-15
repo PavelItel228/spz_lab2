@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.stream.Collectors;
 
+import static command.PwdCommand.getCurrentDirectoryPath;
+
 public class Console {
     public void run(){
         HashMap<String, Command> commands = new HashMap<>();
@@ -25,16 +27,21 @@ public class Console {
         commands.put("truncate", new TruncateCommand());
         commands.put("link", new LinkCommand());
         commands.put("unlink", new UnlinkCommand());
+        commands.put("mkdir", new MkdirCommand());
+        commands.put("cd", new CdCommand());
+        commands.put("pwd", new PwdCommand());
+        commands.put("rmdir", new RmdirCommand());
+        commands.put("symlink", new SymlinkCommand());
 
 
         Scanner scanner = new Scanner(System.in);
-        System.out.print(">>>");
+        System.out.print(" $ ");
 
         while (scanner.hasNext()){
             String commandWithArgs = scanner.nextLine();
             List<String> args = Arrays.stream(commandWithArgs.split(" ")).skip(1).collect(Collectors.toList());
             commands.getOrDefault(commandWithArgs.split(" ")[0], new ExceptionCommand()).execute(args);
-            System.out.print(">>>");
+            System.out.print(getCurrentDirectoryPath() + " $ ");
         }
     }
 }

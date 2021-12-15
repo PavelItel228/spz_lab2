@@ -5,6 +5,7 @@ import filesystem.Descriptor;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
 
 import static utils.Constants.BLOCKS_NUMBER;
 
@@ -14,4 +15,5 @@ public class Context {
     public static Descriptor rootDirectory = null;
     public static List<Byte> memory = new ArrayList<>();
     public static HashMap<Integer, Short> openedFiles = new HashMap<>();
+    public static Descriptor currentDirectory = null;
 }
