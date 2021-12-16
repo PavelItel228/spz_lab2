@@ -10,7 +10,7 @@ import static command.MkdirCommand.resolvePath;
 public class CdCommand implements Command{
     @Override
     public void execute(List<String> args) {
-        PathData pathData = resolvePath(args.get(0), true);
+        PathData pathData = resolvePath(args.get(0), true, true);
         Context.currentDirectory = pathData.getDescriptor();
     }
 }

@@ -23,6 +23,10 @@ public class MkdirCommand implements Command {
     }
 
     public static PathData resolvePath(String path, boolean isLink) {
+        return resolvePath(path, isLink, false);
+    }
+
+    public static PathData resolvePath(String path, boolean isLink, boolean isCd) {
         boolean continueFlag = true;
         String dirName = "";
         Descriptor currentDirectory = null;
@@ -53,7 +57,7 @@ public class MkdirCommand implements Command {
                         throw new RuntimeException("File not found");
                     }
                 }
-                if (currentDescriptor.getFileType().equals(FileType.FILE)){
+                if (currentDescriptor.getFileType().equals(FileType.FILE) && isCd){
                     throw new RuntimeException("not a directory: " + dirName);
                 }
                 if (currentDescriptor.getFileType().equals(FileType.SIMLINK)) {
