@@ -11,6 +11,7 @@ import java.util.List;
 import static command.MkfsCommand.createDirectory;
 import static command.OpenCommand.open;
 import static command.ReadCommand.readData;
+import static utils.Constants.MAX_REDIRECTION;
 
 public class MkdirCommand implements Command {
     @Override
@@ -28,9 +29,13 @@ public class MkdirCommand implements Command {
 
     public static PathData resolvePath(String path, boolean isLink, boolean isCd) {
         boolean continueFlag = true;
+        int redirectionCount = 0;
         String dirName = "";
         Descriptor currentDirectory = null;
         while (continueFlag) {
+            if (redirectionCount == MAX_REDIRECTION){
+                throw new RuntimeException("max redirection reached");
+            }
             continueFlag = false;
             if (path.startsWith("/")) {
                 currentDirectory = Context.rootDirectory;
@@ -73,6 +78,7 @@ public class MkdirCommand implements Command {
                         }
                         path = String.join("/", dirs);
                         continueFlag = true;
+                        redirectionCount +=1;
                         break;
                     }
                 }
